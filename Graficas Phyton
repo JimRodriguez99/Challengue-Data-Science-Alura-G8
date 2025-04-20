@@ -1,0 +1,114 @@
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+import seaborn as sns
+
+# Configuramos el estilo de los gráficos
+plt.style.use('seaborn-v0_8-whitegrid')
+sns.set_palette("Set2")
+
+# Definimos los datos basados en el informe
+tiendas = ['Tienda 1', 'Tienda 2', 'Tienda 3', 'Tienda 4']
+
+# Productos más y menos vendidos por tienda
+mas_vendidos = ['TV LED UHD 4K', 'Iniciando en programación', 'Kit de bancas', 'Cama box']
+menos_vendidos = ['Celular ABXY', 'Juego de mesa', 'Bloques de construcción', 'Guitarra eléctrica']
+
+# Productos mejor y peor calificados por tienda
+mejor_calificados = ['Ajedrez de madera', 'Bicicleta', 'Juego de mesa', 'Juego de mesa']
+peor_calificados = ['Set de vasos', 'Cubertería', 'Microondas', 'TV LED UHD 4K']
+
+# Creamos un DataFrame para facilitar la manipulación de los datos
+data = pd.DataFrame({
+    'Tienda': tiendas,
+    'Producto Más Vendido': mas_vendidos,
+    'Producto Menos Vendido': menos_vendidos,
+    'Producto Mejor Calificado': mejor_calificados,
+    'Producto Peor Calificado': peor_calificados,
+    'Producto Más Costoso': ['TV LED UHD 4K'] * 4,  # Mismo producto en todas las tiendas
+    'Producto Más Barato': ['Cubo mágico 8x8'] * 4  # Mismo producto en todas las tiendas
+})
+
+# 1. Gráfico de barras comparativo - Productos más/menos vendidos por tienda
+plt.figure(figsize=(14, 8))
+
+# Creamos datos para el gráfico de barras
+x = np.arange(len(tiendas))
+width = 0.35
+
+fig, ax = plt.subplots(figsize=(14, 8))
+ax.bar(x - width/2, [1] * 4, width, label='Producto Más Vendido')
+ax.bar(x + width/2, [1] * 4, width, label='Producto Menos Vendido')
+
+# Añadimos etiquetas y título
+ax.set_title('Comparativa de Productos Más y Menos Vendidos por Tienda', fontsize=16)
+ax.set_xlabel('Tiendas', fontsize=12)
+ax.set_ylabel('Productos', fontsize=12)
+ax.set_xticks(x)
+ax.set_xticklabels(tiendas)
+ax.legend()
+
+# Añadimos etiquetas con los nombres de los productos
+for i, (top, bottom) in enumerate(zip(mas_vendidos, menos_vendidos)):
+    ax.text(i - width/2, 0.5, top, ha='center', va='center', rotation=90, fontsize=9)
+    ax.text(i + width/2, 0.5, bottom, ha='center', va='center', rotation=90, fontsize=9)
+
+plt.tight_layout()
+plt.savefig('productos_vendidos_comparativa.png')
+plt.close()
+
+# 2. Gráfico de barras horizontal - Productos mejor y peor calificados
+fig, ax = plt.subplots(figsize=(14, 8))
+
+# Creamos posiciones para las barras
+y = np.arange(len(tiendas))
+height = 0.35
+
+# Añadimos las barras
+ax.barh(y - height/2, [1] * 4, height, label='Mejor Calificado')
+ax.barh(y + height/2, [1] * 4, height, label='Peor Calificado')
+
+# Añadimos etiquetas y título
+ax.set_title('Comparativa de Productos Mejor y Peor Calificados por Tienda', fontsize=16)
+ax.set_ylabel('Tiendas', fontsize=12)
+ax.set_xlabel('Productos', fontsize=12)
+ax.set_yticks(y)
+ax.set_yticklabels(tiendas)
+ax.legend()
+
+# Añadimos etiquetas con los nombres de los productos
+for i, (mejor, peor) in enumerate(zip(mejor_calificados, peor_calificados)):
+    ax.text(0.5, i - height/2, mejor, ha='center', va='center', fontsize=9)
+    ax.text(0.5, i + height/2, peor, ha='center', va='center', fontsize=9)
+
+plt.tight_layout()
+plt.savefig('productos_calificados_comparativa.png')
+plt.close()
+
+# 3. Gráfico de frecuencias - Ocurrencias de productos en diferentes categorías
+# Contamos frecuencias de productos en diferentes categorías
+productos = []
+for col in data.columns[1:]:  # Excluimos la columna 'Tienda'
+    productos.extend(data[col].tolist())
+
+# Contamos ocurrencias
+conteo = pd.Series(productos).value_counts()
+# Filtramos para mostrar solo los que aparecen más de una vez
+conteo_filtrado = conteo[conteo > 1]
+
+plt.figure(figsize=(14, 8))
+conteo_filtrado.plot(kind='bar', color=sns.color_palette("Set2"))
+plt.title('Frecuencia de Aparición de Productos en Diferentes Categorías', fontsize=16)
+plt.xlabel('Productos', fontsize=12)
+plt.ylabel('Número de Apariciones', fontsize=12)
+plt.xticks(rotation=45, ha='right')
+
+plt.tight_layout()
+plt.savefig('frecuencia_productos.png')
+plt.close()
+
+# Mostrar un resumen de los datos
+print("Resumen de datos por tienda:")
+print(data)
+print("\nProductos que aparecen en múltiples categorías:")
+print(conteo_filtrado)
